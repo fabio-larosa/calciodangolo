@@ -6,6 +6,15 @@
     var tbody = table.querySelector('tbody');
 
     headers.forEach(function(header) {
+      var icon = document.createElement('span');
+      icon.className = 'fanta-sort-icon';
+      icon.innerHTML = ' \u21C5';
+      icon.style.opacity = '0.55';
+      icon.style.fontSize = '11px';
+      icon.style.marginLeft = '4px';
+      icon.style.pointerEvents = 'none';
+      header.appendChild(icon);
+
       header.addEventListener('click', function() {
         var col = parseInt(this.getAttribute('data-col'), 10);
         var type = this.getAttribute('data-type');
@@ -17,8 +26,20 @@
           newDir = currentDir === 'asc' ? 'desc' : 'asc';
         }
 
-        headers.forEach(function(h) { h.classList.remove('sort-asc', 'sort-desc'); });
+        headers.forEach(function(h) {
+          h.classList.remove('sort-asc', 'sort-desc');
+          var ic = h.querySelector('.fanta-sort-icon');
+          if (ic) {
+            ic.innerHTML = ' \u21C5';
+            ic.style.opacity = '0.55';
+          }
+        });
         this.classList.add(newDir === 'asc' ? 'sort-asc' : 'sort-desc');
+        var thisIcon = this.querySelector('.fanta-sort-icon');
+        if (thisIcon) {
+          thisIcon.innerHTML = newDir === 'asc' ? ' \u25B2' : ' \u25BC';
+          thisIcon.style.opacity = '1';
+        }
 
         var rows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
         rows.sort(function(a, b) {
