@@ -25,6 +25,26 @@
     return html;
   }
 
+  function formatReparto(text) {
+    var players = text.split(',').map(function(p) { return p.trim(); }).filter(function(p) { return p.length > 0; });
+    var html = '';
+    for (var i = 0; i < players.length; i++) {
+      var name = players[i];
+      var isNew = false;
+      if (name.charAt(0) === '*') {
+        isNew = true;
+        name = name.substring(1).trim();
+      }
+      if (i > 0) html += ', ';
+      if (isNew) {
+        html += '<span class="tcm-new">' + escapeHtml(name) + '</span>';
+      } else {
+        html += escapeHtml(name);
+      }
+    }
+    return html;
+  }
+
   function formatFormation(text) {
     if (!text || !text.trim()) {
       return '<p class="tcm-empty">Formazione non ancora definita</p>';
@@ -38,7 +58,7 @@
     var html = '<div class="tcm-formation">';
     html += '<div class="tcm-modulo">' + escapeHtml(modulo) + '</div>';
     for (var i = 0; i < reparti.length; i++) {
-      html += '<div class="tcm-reparto">' + escapeHtml(reparti[i]) + '</div>';
+      html += '<div class="tcm-reparto">' + formatReparto(reparti[i]) + '</div>';
     }
     html += '</div>';
     return html;
