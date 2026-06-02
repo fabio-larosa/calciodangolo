@@ -17,9 +17,11 @@
       return '<p class="tcm-empty">Nessun' + (type === 'acquisti' ? ' acquisto' : 'a cessione') + ' al momento</p>';
     }
     var lines = text.split('\n').map(function(l) { return l.trim(); }).filter(function(l) { return l.length > 0; });
+    var symbol = type === 'acquisti' ? '+' : '\u2212';
+    var symbolColor = type === 'acquisti' ? '#27a844' : '#dc3545';
     var html = '<ul class="tcm-list tcm-list-' + type + '">';
     for (var i = 0; i < lines.length; i++) {
-      html += '<li>' + escapeHtml(lines[i]) + '</li>';
+      html += '<li><span class="tcm-sign" style="color:' + symbolColor + ';font-weight:700;">' + symbol + '</span> ' + escapeHtml(lines[i]) + '</li>';
     }
     html += '</ul>';
     return html;
