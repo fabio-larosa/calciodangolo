@@ -1,10 +1,10 @@
 /* ═══════════════════════════════════════════════════════════════════
    CLASSIFICA ASSIST SERIE A — calciodangolo.com
-   Widget autocontenuto: SportMonks API → tabella sortable + paginata
+   Widget autocontenuto via Cloudflare Worker proxy
    
    WordPress (blocco HTML personalizzato):
    <div id="cdaAssistWidget"
-        data-token="TUA_API_KEY"
+        data-proxy="https://TUO-WORKER.workers.dev"
         data-league="648">
    </div>
    <script src="https://cdn.jsdelivr.net/gh/fabio-larosa/calciodangolo@main/classifica-assist.js"></script>
@@ -13,9 +13,9 @@
 "use strict";
 var root=document.getElementById("cdaAssistWidget");
 if(!root){console.error("cdaAssistWidget non trovato");return}
-var TOKEN=root.getAttribute("data-token")||"",
+var PROXY=root.getAttribute("data-proxy")||"",
     LEAGUE_ID=root.getAttribute("data-league")||"648",
-    PP=15,SM="https://api.sportmonks.com/v3/football",
+    PP=15,
     PH="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect width='60' height='60' rx='30' fill='%23e0e0e0'/%3E%3Ctext x='50%25' y='54%25' text-anchor='middle' font-family='Arial' font-size='22' fill='%23999'%3E%3F%3C/text%3E%3C/svg%3E";
 
 var allData=[],page=1,sortKey="ast",sortDir=-1;
@@ -24,7 +24,6 @@ var cols=[
   {key:"pos",label:"#",num:true,cls:"n",w:"width:40px"},
   {key:"name",label:"Calciatore",num:false,cls:""},
   {key:"team",label:"Squadra",num:false,cls:""},
-  {key:"apps",label:"Pres.",num:true,cls:"n"},
   {key:"ast",label:"Assist",num:true,cls:"n"}
 ];
 
@@ -76,9 +75,9 @@ document.head.appendChild(s);
 root.innerHTML='<div class="cda-a-header"><h3>Classifica assist Serie A</h3><span class="cda-a-badge">caricamento...</span></div><div class="cda-a-loading"><div class="spinner"></div><p>Caricamento classifica assist\u2026</p></div>';
 
 /* ── Fetch ── */
-if(!TOKEN){showError("API token mancante.");return}
+if(!PROXY){showError("Proxy URL mancante. Aggiungi data-proxy al contenitore.");return}
 
-fetchJSON(SM+"/leagues/"+LEAGUE_ID+"?api_token="+TOKEN+"&include=currentSeason")
+fetchJSON(PROXY+"/leagues/"+LEAGUE_ID+"?include=currentSeason")
 .then(function(res){
   var season=res.data&&res.data.current_season;
   if(!season) throw new Error("Stagione non trovata");
@@ -99,7 +98,7 @@ fetchJSON(SM+"/leagues/"+LEAGUE_ID+"?api_token="+TOKEN+"&include=currentSeason")
 function fetchJSON(url){return fetch(url).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json()})}
 
 function fetchAllPages(seasonId){
-  var base=SM+"/topscorers/seasons/"+seasonId+"?api_token="+TOKEN+"&include=player,participant&filters=seasontopscorerTypes:209&per_page=50";
+  var base=PROXY+"/topscorers/seasons/"+seasonId+"?include=player,participant&filters=seasontopscorerTypes:209&per_page=50";
   var all=[],pg=1;
   function next(){
     return fetchJSON(base+"&page="+pg).then(function(res){
@@ -124,7 +123,6 @@ function processItems(items){
       playerImg:p.image_path||PH,
       teamName:t.name||t.short_code||"\u2013",
       teamImg:t.image_path||"",
-      apps:item.total>0?"-":"-",
       assists:item.total||0
     };
   });
@@ -135,7 +133,6 @@ function getVal(row,key){
   if(key==="pos")return row.pos;
   if(key==="name")return row.surname;
   if(key==="team")return row.teamName;
-  if(key==="apps")return typeof row.apps==="number"?row.apps:0;
   if(key==="ast")return row.assists;
   return "";
 }
@@ -159,7 +156,6 @@ function render(){
   if(page>tp)page=tp;if(page<1)page=1;
   var st=(page-1)*PP,pd=data.slice(st,st+PP);
 
-  /* remove old */
   var old=root.querySelector(".cda-a-table");if(old)old.remove();
   var oldP=root.querySelector(".cda-a-pag");if(oldP)oldP.remove();
   var oldL=root.querySelector(".cda-a-loading");if(oldL)oldL.remove();
@@ -182,7 +178,6 @@ function render(){
     h+='<td><div class="cda-a-player"><img src="'+esc(r.playerImg)+'" alt="" loading="lazy" onerror="this.src=\''+PH+'\'"><span class="nm">'+esc(r.playerName)+"</span></div></td>";
     h+='<td><div class="cda-a-team">'+(r.teamImg?'<img src="'+esc(r.teamImg)+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">':"")+
       "<span>"+esc(r.teamName)+"</span></div></td>";
-    h+='<td class="cda-a-stat">'+(typeof r.apps==="number"?r.apps:"\u2013")+"</td>";
     h+='<td class="cda-a-stat hi">'+r.assists+"</td>";
     h+="</tr>";
   });
@@ -190,7 +185,6 @@ function render(){
 
   root.querySelector(".cda-a-header").insertAdjacentHTML("afterend",h);
 
-  /* header click */
   root.querySelector(".cda-a-table thead").addEventListener("click",function(e){
     var th=e.target.closest("th");if(!th)return;
     var k=th.getAttribute("data-k");
@@ -199,7 +193,6 @@ function render(){
     page=1;render();
   });
 
-  /* pagination */
   if(tp>1){
     var ph='<div class="cda-a-pag">';
     ph+='<button data-p="prev"'+(page===1?" disabled":"")+">\u25C0</button>";
