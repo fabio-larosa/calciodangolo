@@ -38,6 +38,28 @@
   text-align: left !important;
 }
 
+/* Colonne tabella giocatori: Calciatore, R, Sq., giallo, doppia, rosso, Totale */
+.cdaCartelliniGiocatoriTable th:nth-child(1),
+.cdaCartelliniGiocatoriTable td:nth-child(1) { width: 38% !important; }
+.cdaCartelliniGiocatoriTable th:nth-child(2),
+.cdaCartelliniGiocatoriTable td:nth-child(2) { width: 7% !important; }
+.cdaCartelliniGiocatoriTable th:nth-child(3),
+.cdaCartelliniGiocatoriTable td:nth-child(3) { width: 10% !important; }
+.cdaCartelliniGiocatoriTable th:nth-child(4),
+.cdaCartelliniGiocatoriTable td:nth-child(4),
+.cdaCartelliniGiocatoriTable th:nth-child(5),
+.cdaCartelliniGiocatoriTable td:nth-child(5),
+.cdaCartelliniGiocatoriTable th:nth-child(6),
+.cdaCartelliniGiocatoriTable td:nth-child(6) { width: 12% !important; }
+.cdaCartelliniGiocatoriTable th:nth-child(7),
+.cdaCartelliniGiocatoriTable td:nth-child(7) { width: 9% !important; }
+
+.cdaCartelliniGiocatoriTable td:first-child {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 0 !important; /* forza il rispetto della % con table-layout:fixed */
+}
+
 .cdaCartelliniTable thead th {
   background: #007d45 !important;
   color: #fff !important;
@@ -126,4 +148,6 @@
   .cdaCartelliniTable { font-size: 12px !important; }
   .cdaCartelliniTable th, .cdaCartelliniTable td { padding: 6px 3px !important; }
   .cdaTeamLogo { width: 16px !important; height: 16px !important; }
+  .cdaCartelliniGiocatoriTable th:nth-child(1),
+  .cdaCartelliniGiocatoriTable td:nth-child(1) { width: 34% !important; }
 }
