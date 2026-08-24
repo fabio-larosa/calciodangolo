@@ -16,6 +16,7 @@ var allData=[],page=1,sortKey="ast",sortDir=-1;
 var filterRole="",filterTeam="";
 var posMap={24:"P",25:"D",26:"C",27:"A"};
 var roleOrder=["P","D","C","A"];
+var teamMap={"AC Milan":"Milan","ACF Fiorentina":"Fiorentina","AS Roma":"Roma","Atalanta BC":"Atalanta","Bologna FC":"Bologna","Bologna FC 1909":"Bologna","Cagliari Calcio":"Cagliari","Como 1907":"Como","Frosinone Calcio":"Frosinone","Genoa CFC":"Genoa","Inter":"Inter","Internazionale":"Inter","SS Lazio":"Lazio","Lazio":"Lazio","SSC Napoli":"Napoli","US Lecce":"Lecce","Lecce":"Lecce","US Sassuolo":"Sassuolo","Sassuolo Calcio":"Sassuolo","AC Monza":"Monza","Parma Calcio 1913":"Parma","Parma":"Parma","Torino FC":"Torino","Udinese Calcio":"Udinese","Udinese":"Udinese","Venezia FC":"Venezia","Juventus FC":"Juventus","Juventus":"Juventus","Napoli":"Napoli","Roma":"Roma","Milan":"Milan","Atalanta":"Atalanta","Bologna":"Bologna","Cagliari":"Cagliari","Como":"Como","Frosinone":"Frosinone","Genoa":"Genoa","Monza":"Monza","Sassuolo":"Sassuolo","Torino":"Torino","Venezia":"Venezia","Fiorentina":"Fiorentina"};
 
 var cols=[
   {key:"pos",label:"#",num:true,cls:"n",w:"width:40px"},
@@ -120,13 +121,14 @@ function processItems(items){
     var name=p.common_name||p.display_name||((p.firstname||"")+" "+(p.lastname||"")).trim()||"\u2013";
     var parts=name.split(" ");
     var surname=parts.length>1?parts.slice(1).join(" "):parts[0];
+    var rawTeam=t.name||t.short_code||"\u2013";
     return {
       pos:item.position||(i+1),
       playerName:name,
       surname:surname,
       playerImg:p.image_path||PH,
       role:posMap[p.position_id]||"\u2013",
-      teamName:t.name||t.short_code||"\u2013",
+      teamName:teamMap[rawTeam]||rawTeam,
       teamImg:t.image_path||"",
       assists:item.total||0
     };
