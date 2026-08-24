@@ -4,8 +4,8 @@
    
    WordPress (blocco HTML personalizzato):
    <div id="cdaAssistWidget"
-        data-proxy="https://TUO-WORKER.workers.dev"
-        data-league="648">
+        data-proxy="https://sportmonks-proxy.flarosa-ext.workers.dev"
+        data-league="384">
    </div>
    <script src="https://cdn.jsdelivr.net/gh/fabio-larosa/calciodangolo@main/classifica-assist.js"></script>
    ═══════════════════════════════════════════════════════════════════ */
@@ -14,15 +14,17 @@
 var root=document.getElementById("cdaAssistWidget");
 if(!root){console.error("cdaAssistWidget non trovato");return}
 var PROXY=root.getAttribute("data-proxy")||"",
-    LEAGUE_ID=root.getAttribute("data-league")||"648",
+    LEAGUE_ID=root.getAttribute("data-league")||"384",
     PP=15,
     PH="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect width='60' height='60' rx='30' fill='%23e0e0e0'/%3E%3Ctext x='50%25' y='54%25' text-anchor='middle' font-family='Arial' font-size='22' fill='%23999'%3E%3F%3C/text%3E%3C/svg%3E";
 
 var allData=[],page=1,sortKey="ast",sortDir=-1;
+var posMap={24:"P",25:"D",26:"C",27:"A"};
 
 var cols=[
   {key:"pos",label:"#",num:true,cls:"n",w:"width:40px"},
   {key:"name",label:"Calciatore",num:false,cls:""},
+  {key:"role",label:"Ruolo",num:false,cls:"n"},
   {key:"team",label:"Squadra",num:false,cls:""},
   {key:"ast",label:"Assist",num:true,cls:"n"}
 ];
@@ -121,6 +123,7 @@ function processItems(items){
       playerName:name,
       surname:surname,
       playerImg:p.image_path||PH,
+      role:posMap[p.position_id]||"\u2013",
       teamName:t.name||t.short_code||"\u2013",
       teamImg:t.image_path||"",
       assists:item.total||0
@@ -132,6 +135,7 @@ function processItems(items){
 function getVal(row,key){
   if(key==="pos")return row.pos;
   if(key==="name")return row.surname;
+  if(key==="role")return row.role;
   if(key==="team")return row.teamName;
   if(key==="ast")return row.assists;
   return "";
@@ -176,6 +180,7 @@ function render(){
     h+="<tr>";
     h+='<td class="cda-a-pos'+(r.pos<=3?" top3":"")+'">'+r.pos+"</td>";
     h+='<td><div class="cda-a-player"><img src="'+esc(r.playerImg)+'" alt="" loading="lazy" onerror="this.src=\''+PH+'\'"><span class="nm">'+esc(r.playerName)+"</span></div></td>";
+    h+='<td class="cda-a-stat">'+esc(r.role)+"</td>";
     h+='<td><div class="cda-a-team">'+(r.teamImg?'<img src="'+esc(r.teamImg)+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">':"")+
       "<span>"+esc(r.teamName)+"</span></div></td>";
     h+='<td class="cda-a-stat hi">'+r.assists+"</td>";
