@@ -21,7 +21,7 @@ var teamMap={"AC Milan":"Milan","ACF Fiorentina":"Fiorentina","AS Roma":"Roma","
 var cols=[
   {key:"pos",label:"#",num:true,cls:"n",w:"width:40px"},
   {key:"name",label:"Calciatore",num:false,cls:""},
-  {key:"role",label:"Ruolo",num:false,cls:"n"},
+  {key:"role",label:"R",num:false,cls:"n"},
   {key:"team",label:"Sq.",num:false,cls:"n",w:"width:52px"},
   {key:"goals",label:"Gol",num:true,cls:"n"},
   {key:"apps",label:"Pres.",num:true,cls:"n"},
@@ -42,6 +42,7 @@ s.textContent=[
 ".cda-m-filters select{padding:5px 28px 5px 10px!important;font-size:13px!important;font-weight:500!important;border:1px solid #ccc!important;border-radius:6px!important;background:#fff url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E\") no-repeat right 10px center!important;appearance:none!important;-webkit-appearance:none!important;cursor:pointer!important;color:#333!important;min-width:120px!important}",
 ".cda-m-filters select:hover{border-color:#007d45!important}",
 ".cda-m-filters select:focus{outline:none!important;border-color:#007d45!important;box-shadow:0 0 0 2px rgba(0,125,69,0.15)!important}",
+".cda-m-tablewrap{overflow-x:auto!important;-webkit-overflow-scrolling:touch!important}",
 ".cda-m-table{width:100%!important;border-collapse:collapse!important;font-size:14px!important;border-left:1px solid #e0e0e0!important;border-right:1px solid #e0e0e0!important}",
 ".cda-m-table thead th{background:#f8f8f8!important;color:#555!important;font-size:11px!important;font-weight:700!important;text-transform:uppercase!important;letter-spacing:0.5px!important;padding:11px 10px!important;text-align:left!important;border-bottom:2px solid #e0e0e0!important;white-space:nowrap!important;cursor:pointer!important;user-select:none!important;transition:background 0.12s!important}",
 ".cda-m-table thead th:hover{background:#e8f5ee!important}",
@@ -74,7 +75,8 @@ s.textContent=[
 ".cda-m-loading p{margin:14px 0 0!important;font-size:14px!important;color:#888!important}",
 ".cda-m-error{text-align:center!important;padding:40px 20px!important;border:1px solid #e0e0e0!important;border-top:none!important;border-radius:0 0 10px 10px!important;color:#c0392b!important;font-size:14px!important}",
 ".cda-m-empty{text-align:center!important;padding:50px 20px!important;border:1px solid #e0e0e0!important;border-top:none!important;border-radius:0 0 10px 10px!important;color:#888!important;font-size:14px!important}",
-"@media(max-width:640px){.cda-m-header{padding:14px 16px!important}.cda-m-header h3{font-size:15px!important}.cda-m-filters{padding:10px 16px!important;gap:8px!important}.cda-m-filters select{min-width:100px!important;font-size:12px!important}.cda-m-table thead th,.cda-m-table tbody td{padding:8px 5px!important;font-size:11px!important}.cda-m-table thead th{font-size:9.5px!important}.cda-m-player img{width:34px!important;height:34px!important}.cda-m-player .nm{font-size:12px!important}.cda-m-team img{width:19px!important;height:19px!important}.cda-m-stat{font-size:11.5px!important}.cda-m-stat.hi{font-size:14px!important}.cda-m-pag button{min-width:30px!important;height:30px!important;font-size:12px!important}}"
+"@media(max-width:640px){.cda-m-header{padding:14px 16px!important}.cda-m-header h3{font-size:15px!important}.cda-m-filters{padding:10px 16px!important;gap:8px!important}.cda-m-filters select{min-width:100px!important;font-size:12px!important}.cda-m-table{table-layout:fixed!important}.cda-m-table thead th,.cda-m-table tbody td{padding:7px 3px!important;font-size:10.5px!important}.cda-m-table thead th{font-size:9px!important;overflow:hidden!important;text-overflow:ellipsis!important}.cda-m-table th:nth-child(1),.cda-m-table td:nth-child(1){width:20px!important}.cda-m-table th:nth-child(2),.cda-m-table td:nth-child(2){width:34%!important}.cda-m-table th:nth-child(4),.cda-m-table td:nth-child(4){width:28px!important}.cda-m-player{gap:5px!important}.cda-m-player img{width:24px!important;height:24px!important;border-width:1px!important}.cda-m-player .nm{font-size:11px!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;display:block!important;max-width:100%!important}.cda-m-team img{width:18px!important;height:18px!important}.cda-m-stat{font-size:10.5px!important}.cda-m-stat.hi{font-size:12.5px!important}.cda-m-pag button{min-width:30px!important;height:30px!important;font-size:12px!important}}",
+"@media(max-width:400px){.cda-m-table thead th,.cda-m-table tbody td{padding:6px 2px!important;font-size:9.5px!important}.cda-m-table thead th{font-size:8.5px!important}.cda-m-player img{width:20px!important;height:20px!important}.cda-m-player{gap:4px!important}.cda-m-player .nm{font-size:10px!important}.cda-m-team img{width:16px!important;height:16px!important}}"
 ].join("\n");
 document.head.appendChild(s);
 
@@ -221,7 +223,7 @@ function render(){
   if(page>tp)page=tp;if(page<1)page=1;
   var st=(page-1)*PP,pd=data.slice(st,st+PP);
 
-  var old=root.querySelector(".cda-m-table");if(old)old.remove();
+  var old=root.querySelector(".cda-m-tablewrap");if(old)old.remove();
   var oldP=root.querySelector(".cda-m-pag");if(oldP)oldP.remove();
   var oldL=root.querySelector(".cda-m-loading");if(oldL)oldL.remove();
   var oldE=root.querySelector(".cda-m-error");if(oldE)oldE.remove();
@@ -233,7 +235,7 @@ function render(){
     return;
   }
 
-  var h='<table class="cda-m-table"><thead><tr>';
+  var h='<div class="cda-m-tablewrap"><table class="cda-m-table"><thead><tr>';
   cols.forEach(function(c){
     var isSorted=sortKey===c.key;
     var arrow=isSorted?(sortDir===1?"\u25B2":"\u25BC"):"\u21C5";
@@ -255,7 +257,7 @@ function render(){
     h+='<td class="cda-m-stat">'+(r.goalsPerMin===null?'<span class="mut">\u2013</span>':r.goalsPerMin+"'")+"</td>";
     h+="</tr>";
   });
-  h+="</tbody></table>";
+  h+="</tbody></table></div>";
 
   var insertAfter=root.querySelector(".cda-m-filters")||root.querySelector(".cda-m-header");
   insertAfter.insertAdjacentHTML("afterend",h);
@@ -275,7 +277,7 @@ function render(){
     if(ep-sp<4)sp=Math.max(1,ep-4);
     for(var i=sp;i<=ep;i++)ph+='<button data-p="'+i+'"'+(i===page?' class="active"':"")+">"+i+"</button>";
     ph+='<button data-p="next"'+(page===tp?" disabled":"")+">\u25B6</button></div>";
-    root.querySelector(".cda-m-table").insertAdjacentHTML("afterend",ph);
+    root.querySelector(".cda-m-tablewrap").insertAdjacentHTML("afterend",ph);
     root.querySelector(".cda-m-pag").addEventListener("click",function(e){
       var btn=e.target.closest("button");if(!btn||btn.disabled)return;
       var v=btn.getAttribute("data-p");
