@@ -279,10 +279,21 @@
     return parts[parts.length - 1];
   }
 
+  var SURNAME_MAX_LEN = 14;
+
   function formatDisplayName(fullName) {
     var parts = fullName.trim().split(' ');
-    if (parts.length === 1) { return fullName; }
-    return parts[0].charAt(0) + '. ' + parts.slice(1).join(' ');
+    if (parts.length === 1) {
+      return truncateSurname(fullName);
+    }
+    var initial = parts[0].charAt(0) + '.';
+    var surname = parts.slice(1).join(' ');
+    return initial + ' ' + truncateSurname(surname);
+  }
+
+  function truncateSurname(surname) {
+    if (surname.length <= SURNAME_MAX_LEN) { return surname; }
+    return surname.slice(0, SURNAME_MAX_LEN - 1).trim() + '…';
   }
 
   var PAGE_SIZE = 15;
@@ -293,7 +304,9 @@
     var teams = Array.from(new Set(rows.map(function (r) { return r.teamName; }))).sort(function (a, b) { return a.localeCompare(b, 'it'); });
 
     var columns = [
-      { key: 'name', label: 'Calciatore', sortable: true, cell: function (r) { return formatDisplayName(r.name); } },
+      { key: 'name', label: 'Calciatore', sortable: true, cell: function (r) {
+          return '<span title="' + r.name + '">' + formatDisplayName(r.name) + '</span>';
+        } },
       { key: 'role', label: 'R', sortable: true, cell: function (r) { return r.role; } },
       { key: 'teamName', label: 'Sq.', sortable: false, cell: function (r) {
           return r.teamLogo ? '<img class="cdaTeamLogo" src="' + r.teamLogo + '" alt="' + r.teamName + '">' : r.teamName;
