@@ -98,7 +98,7 @@ fetchJSON(PROXY+"/leagues/"+LEAGUE_ID+"?include=currentSeason")
 function fetchJSON(url){return fetch(url).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json()})}
 
 function fetchAllPages(seasonId){
-  var base=PROXY+"/topscorers/seasons/"+seasonId+"?include=player,participant&filters=seasontopscorerTypes:209&per_page=50";
+  var base=PROXY+"/topscorers/seasons/"+seasonId+"?include=player;participant&filters=seasontopscorerTypes:209&per_page=50";
   var all=[],pg=1;
   function next(){
     return fetchJSON(base+"&page="+pg).then(function(res){
