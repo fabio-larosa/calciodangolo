@@ -79,7 +79,7 @@ if(!PROXY){showError("Proxy URL mancante. Aggiungi data-proxy al contenitore.");
 
 fetchJSON(PROXY+"/leagues/"+LEAGUE_ID+"?include=currentSeason")
 .then(function(res){
-  var season=res.data&&res.data.current_season;
+  var season=res.data&&res.data.currentseason;
   if(!season) throw new Error("Stagione non trovata");
   var badge=root.querySelector(".cda-a-badge");
   if(badge&&season.name) badge.textContent=season.name;
