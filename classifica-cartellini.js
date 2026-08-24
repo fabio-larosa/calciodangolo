@@ -279,13 +279,21 @@
     return parts[parts.length - 1];
   }
 
+  function formatDisplayName(fullName) {
+    var parts = fullName.trim().split(' ');
+    if (parts.length === 1) { return fullName; }
+    return parts[0].charAt(0) + '. ' + parts.slice(1).join(' ');
+  }
+
+  var PAGE_SIZE = 15;
+
   function renderGiocatoriTable(container, rows) {
-    var state = { sortKey: 'totale', sortDir: -1, rows: rows, roleFilter: '', teamFilter: '' };
+    var state = { sortKey: 'totale', sortDir: -1, rows: rows, roleFilter: '', teamFilter: '', page: 1 };
 
     var teams = Array.from(new Set(rows.map(function (r) { return r.teamName; }))).sort(function (a, b) { return a.localeCompare(b, 'it'); });
 
     var columns = [
-      { key: 'name', label: 'Calciatore', sortable: true, cell: function (r) { return r.name; } },
+      { key: 'name', label: 'Calciatore', sortable: true, cell: function (r) { return formatDisplayName(r.name); } },
       { key: 'role', label: 'R', sortable: true, cell: function (r) { return r.role; } },
       { key: 'teamName', label: 'Sq.', sortable: false, cell: function (r) {
           return r.teamLogo ? '<img class="cdaTeamLogo" src="' + r.teamLogo + '" alt="' + r.teamName + '">' : r.teamName;
@@ -319,7 +327,12 @@
     state.rows.sort(function (a, b) { return defaultCompare(cognome(a.name), cognome(b.name), a, b); });
 
     function draw() {
-      var visible = applyFiltersAndSort();
+      var allVisible = applyFiltersAndSort();
+      var totalPages = Math.max(1, Math.ceil(allVisible.length / PAGE_SIZE));
+      if (state.page > totalPages) { state.page = totalPages; }
+      if (state.page < 1) { state.page = 1; }
+      var start = (state.page - 1) * PAGE_SIZE;
+      var visible = allVisible.slice(start, start + PAGE_SIZE);
 
       var html = '<div class="cdaCartelliniFilters">' +
         '<select class="cdaFilterRole"><option value="">Ruolo</option>' +
@@ -343,14 +356,31 @@
       });
       html += '</tbody></table></div>';
 
+      html += '<div class="cdaCartelliniPagination">' +
+        '<button class="cdaPagePrev" ' + (state.page <= 1 ? 'disabled' : '') + '>‹</button>' +
+        '<span class="cdaPageInfo">Pagina ' + state.page + ' di ' + totalPages + '</span>' +
+        '<button class="cdaPageNext" ' + (state.page >= totalPages ? 'disabled' : '') + '>›</button>' +
+        '</div>';
+
       container.innerHTML = html;
 
       container.querySelector('.cdaFilterRole').addEventListener('change', function (e) {
         state.roleFilter = e.target.value;
+        state.page = 1;
         draw();
       });
       container.querySelector('.cdaFilterTeam').addEventListener('change', function (e) {
         state.teamFilter = e.target.value;
+        state.page = 1;
+        draw();
+      });
+
+      container.querySelector('.cdaPagePrev').addEventListener('click', function () {
+        state.page -= 1;
+        draw();
+      });
+      container.querySelector('.cdaPageNext').addEventListener('click', function () {
+        state.page += 1;
         draw();
       });
 
@@ -363,6 +393,7 @@
             state.sortKey = key;
             state.sortDir = key === 'name' || key === 'role' ? 1 : -1;
           }
+          state.page = 1;
           draw();
         });
       });
