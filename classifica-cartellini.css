@@ -1,0 +1,98 @@
+/* Classifica Cartellini — calciodangolo.com */
+
+.cdaCartelliniWrap {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+.cdaCartelliniLoading,
+.cdaCartelliniError {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+  padding: 16px !important;
+  text-align: center !important;
+  color: #555 !important;
+}
+
+.cdaCartelliniError { color: #b00020 !important; }
+
+.cdaCartelliniTable {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  table-layout: fixed !important;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+  font-size: 14px !important;
+}
+
+.cdaCartelliniTable th,
+.cdaCartelliniTable td {
+  padding: 8px 6px !important;
+  text-align: center !important;
+  border-bottom: 1px solid #e5e5e5 !important;
+  white-space: nowrap !important;
+}
+
+.cdaCartelliniGiocatoriTable td:first-child,
+.cdaCartelliniGiocatoriTable th:first-child,
+.cdaCartelliniSquadreTable td:first-child,
+.cdaCartelliniSquadreTable th:first-child {
+  text-align: left !important;
+}
+
+.cdaCartelliniTable thead th {
+  background: #007d45 !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  position: sticky !important;
+  top: 0 !important;
+}
+
+.cdaCartelliniTable th.cdaSortable {
+  cursor: pointer !important;
+  user-select: none !important;
+}
+
+.cdaCartelliniTable th.cdaSortable:hover {
+  background: #00602f !important;
+}
+
+.cdaCartelliniTable tbody tr:nth-child(even) {
+  background: #f7f7f7 !important;
+}
+
+.cdaCartelliniTable tbody tr:hover {
+  background: #eef7f1 !important;
+}
+
+.cdaTeamCell {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.cdaTeamLogo {
+  width: 20px !important;
+  height: 20px !important;
+  object-fit: contain !important;
+  vertical-align: middle !important;
+}
+
+.cdaCartelliniFilters {
+  display: flex !important;
+  gap: 8px !important;
+  margin-bottom: 10px !important;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+}
+
+.cdaCartelliniFilters select {
+  padding: 6px 10px !important;
+  border: 1px solid #ccc !important;
+  border-radius: 4px !important;
+  font-size: 13px !important;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .cdaCartelliniTable { font-size: 12px !important; }
+  .cdaCartelliniTable th, .cdaCartelliniTable td { padding: 6px 3px !important; }
+  .cdaTeamLogo { width: 16px !important; height: 16px !important; }
+}
