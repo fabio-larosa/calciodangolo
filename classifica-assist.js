@@ -1,13 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════
    CLASSIFICA ASSIST SERIE A — calciodangolo.com
    Widget autocontenuto via Cloudflare Worker proxy
-   
-   WordPress (blocco HTML personalizzato):
-   <div id="cdaAssistWidget"
-        data-proxy="https://sportmonks-proxy.flarosa-ext.workers.dev"
-        data-league="384">
-   </div>
-   <script src="https://cdn.jsdelivr.net/gh/fabio-larosa/calciodangolo@main/classifica-assist.js"></script>
+   Con filtri Ruolo e Squadra + sort intestazioni + paginazione
    ═══════════════════════════════════════════════════════════════════ */
 (function(){
 "use strict";
@@ -19,7 +13,9 @@ var PROXY=root.getAttribute("data-proxy")||"",
     PH="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect width='60' height='60' rx='30' fill='%23e0e0e0'/%3E%3Ctext x='50%25' y='54%25' text-anchor='middle' font-family='Arial' font-size='22' fill='%23999'%3E%3F%3C/text%3E%3C/svg%3E";
 
 var allData=[],page=1,sortKey="ast",sortDir=-1;
+var filterRole="",filterTeam="";
 var posMap={24:"P",25:"D",26:"C",27:"A"};
+var roleOrder=["P","D","C","A"];
 
 var cols=[
   {key:"pos",label:"#",num:true,cls:"n",w:"width:40px"},
@@ -37,6 +33,11 @@ s.textContent=[
 ".cda-a-header{background:#007d45!important;color:#fff!important;padding:18px 22px!important;border-radius:10px 10px 0 0!important;display:flex!important;align-items:center!important;justify-content:space-between!important;flex-wrap:wrap!important;gap:10px!important}",
 ".cda-a-header h3{margin:0!important;font-size:17px!important;font-weight:700!important;letter-spacing:0.3px!important;color:#fff!important}",
 ".cda-a-header .cda-a-badge{font-size:11px!important;background:rgba(255,255,255,0.2)!important;padding:3px 10px!important;border-radius:20px!important;font-weight:500!important}",
+".cda-a-filters{display:flex!important;align-items:center!important;gap:10px!important;padding:12px 22px!important;background:#f5f5f5!important;border-left:1px solid #e0e0e0!important;border-right:1px solid #e0e0e0!important;flex-wrap:wrap!important}",
+".cda-a-filters label{font-size:12px!important;color:#555!important;font-weight:600!important;text-transform:uppercase!important;letter-spacing:0.3px!important}",
+".cda-a-filters select{padding:5px 28px 5px 10px!important;font-size:13px!important;font-weight:500!important;border:1px solid #ccc!important;border-radius:6px!important;background:#fff url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E\") no-repeat right 10px center!important;appearance:none!important;-webkit-appearance:none!important;cursor:pointer!important;color:#333!important;min-width:120px!important}",
+".cda-a-filters select:hover{border-color:#007d45!important}",
+".cda-a-filters select:focus{outline:none!important;border-color:#007d45!important;box-shadow:0 0 0 2px rgba(0,125,69,0.15)!important}",
 ".cda-a-table{width:100%!important;border-collapse:collapse!important;font-size:14px!important;border-left:1px solid #e0e0e0!important;border-right:1px solid #e0e0e0!important}",
 ".cda-a-table thead th{background:#f8f8f8!important;color:#555!important;font-size:11px!important;font-weight:700!important;text-transform:uppercase!important;letter-spacing:0.5px!important;padding:11px 12px!important;text-align:left!important;border-bottom:2px solid #e0e0e0!important;white-space:nowrap!important;cursor:pointer!important;user-select:none!important;transition:background 0.12s!important}",
 ".cda-a-table thead th:hover{background:#e8f5ee!important}",
@@ -69,7 +70,7 @@ s.textContent=[
 ".cda-a-loading p{margin:14px 0 0!important;font-size:14px!important;color:#888!important}",
 ".cda-a-error{text-align:center!important;padding:40px 20px!important;border:1px solid #e0e0e0!important;border-top:none!important;border-radius:0 0 10px 10px!important;color:#c0392b!important;font-size:14px!important}",
 ".cda-a-empty{text-align:center!important;padding:50px 20px!important;border:1px solid #e0e0e0!important;border-top:none!important;border-radius:0 0 10px 10px!important;color:#888!important;font-size:14px!important}",
-"@media(max-width:640px){.cda-a-header{padding:14px 16px!important}.cda-a-header h3{font-size:15px!important}.cda-a-table thead th,.cda-a-table tbody td{padding:8px 6px!important;font-size:12px!important}.cda-a-table thead th{font-size:10px!important}.cda-a-player img{width:34px!important;height:34px!important}.cda-a-player .nm{font-size:12px!important}.cda-a-team img{width:16px!important;height:16px!important}.cda-a-team span{font-size:11px!important}.cda-a-stat{font-size:12px!important}.cda-a-stat.hi{font-size:15px!important}.cda-a-pag button{min-width:30px!important;height:30px!important;font-size:12px!important}}"
+"@media(max-width:640px){.cda-a-header{padding:14px 16px!important}.cda-a-header h3{font-size:15px!important}.cda-a-filters{padding:10px 16px!important;gap:8px!important}.cda-a-filters select{min-width:100px!important;font-size:12px!important}.cda-a-table thead th,.cda-a-table tbody td{padding:8px 6px!important;font-size:12px!important}.cda-a-table thead th{font-size:10px!important}.cda-a-player img{width:34px!important;height:34px!important}.cda-a-player .nm{font-size:12px!important}.cda-a-team img{width:16px!important;height:16px!important}.cda-a-team span{font-size:11px!important}.cda-a-stat{font-size:12px!important}.cda-a-stat.hi{font-size:15px!important}.cda-a-pag button{min-width:30px!important;height:30px!important;font-size:12px!important}}"
 ].join("\n");
 document.head.appendChild(s);
 
@@ -77,7 +78,7 @@ document.head.appendChild(s);
 root.innerHTML='<div class="cda-a-header"><h3>Classifica assist Serie A</h3><span class="cda-a-badge">caricamento...</span></div><div class="cda-a-loading"><div class="spinner"></div><p>Caricamento classifica assist\u2026</p></div>';
 
 /* ── Fetch ── */
-if(!PROXY){showError("Proxy URL mancante. Aggiungi data-proxy al contenitore.");return}
+if(!PROXY){showError("Proxy URL mancante.");return}
 
 fetchJSON(PROXY+"/leagues/"+LEAGUE_ID+"?include=currentSeason")
 .then(function(res){
@@ -90,6 +91,7 @@ fetchJSON(PROXY+"/leagues/"+LEAGUE_ID+"?include=currentSeason")
 .then(function(items){
   allData=processItems(items);
   if(allData.length===0){showEmpty("Nessun dato disponibile. La stagione potrebbe non essere ancora iniziata.");return}
+  buildFilters();
   render();
 })
 .catch(function(err){
@@ -131,6 +133,30 @@ function processItems(items){
   });
 }
 
+/* ── Filters ── */
+function buildFilters(){
+  var teams=[];
+  allData.forEach(function(d){if(teams.indexOf(d.teamName)===-1)teams.push(d.teamName)});
+  teams.sort(function(a,b){return a.localeCompare(b,"it")});
+
+  var html='<div class="cda-a-filters">';
+  html+='<label>Ruolo:</label><select id="cdaFilterRole"><option value="">Tutti</option>';
+  roleOrder.forEach(function(r){html+='<option value="'+r+'">'+r+'</option>'});
+  html+='</select>';
+  html+='<label>Squadra:</label><select id="cdaFilterTeam"><option value="">Tutte</option>';
+  teams.forEach(function(t){html+='<option value="'+esc(t)+'">'+esc(t)+'</option>'});
+  html+='</select></div>';
+
+  root.querySelector(".cda-a-header").insertAdjacentHTML("afterend",html);
+
+  document.getElementById("cdaFilterRole").addEventListener("change",function(){
+    filterRole=this.value;page=1;render();
+  });
+  document.getElementById("cdaFilterTeam").addEventListener("change",function(){
+    filterTeam=this.value;page=1;render();
+  });
+}
+
 /* ── Sort & render ── */
 function getVal(row,key){
   if(key==="pos")return row.pos;
@@ -141,8 +167,16 @@ function getVal(row,key){
   return "";
 }
 
-function doSort(){
-  var sorted=allData.slice();
+function getFiltered(){
+  return allData.filter(function(d){
+    if(filterRole&&d.role!==filterRole)return false;
+    if(filterTeam&&d.teamName!==filterTeam)return false;
+    return true;
+  });
+}
+
+function doSort(data){
+  var sorted=data.slice();
   sorted.sort(function(a,b){
     var va=getVal(a,sortKey),vb=getVal(b,sortKey),cmp;
     if(typeof va==="number")cmp=(va-vb)*sortDir;
@@ -155,7 +189,8 @@ function doSort(){
 }
 
 function render(){
-  var data=doSort();
+  var filtered=getFiltered();
+  var data=doSort(filtered);
   var tp=Math.ceil(data.length/PP);
   if(page>tp)page=tp;if(page<1)page=1;
   var st=(page-1)*PP,pd=data.slice(st,st+PP);
@@ -165,6 +200,12 @@ function render(){
   var oldL=root.querySelector(".cda-a-loading");if(oldL)oldL.remove();
   var oldE=root.querySelector(".cda-a-error");if(oldE)oldE.remove();
   var oldM=root.querySelector(".cda-a-empty");if(oldM)oldM.remove();
+
+  if(data.length===0){
+    var insertAfter=root.querySelector(".cda-a-filters")||root.querySelector(".cda-a-header");
+    insertAfter.insertAdjacentHTML("afterend",'<div class="cda-a-empty">Nessun giocatore trovato con questi filtri.</div>');
+    return;
+  }
 
   var h='<table class="cda-a-table"><thead><tr>';
   cols.forEach(function(c){
@@ -188,7 +229,8 @@ function render(){
   });
   h+="</tbody></table>";
 
-  root.querySelector(".cda-a-header").insertAdjacentHTML("afterend",h);
+  var insertAfter=root.querySelector(".cda-a-filters")||root.querySelector(".cda-a-header");
+  insertAfter.insertAdjacentHTML("afterend",h);
 
   root.querySelector(".cda-a-table thead").addEventListener("click",function(e){
     var th=e.target.closest("th");if(!th)return;
