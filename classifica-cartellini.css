@@ -90,6 +90,37 @@
   font-size: 13px !important;
 }
 
+.cdaCartelliniPagination {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  margin-top: 12px !important;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+  font-size: 13px !important;
+}
+
+.cdaCartelliniPagination button {
+  background: #007d45 !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 4px !important;
+  width: 28px !important;
+  height: 28px !important;
+  cursor: pointer !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+}
+
+.cdaCartelliniPagination button:disabled {
+  background: #ccc !important;
+  cursor: default !important;
+}
+
+.cdaCartelliniPagination button:not(:disabled):hover {
+  background: #00602f !important;
+}
+
 /* Mobile */
 @media (max-width: 600px) {
   .cdaCartelliniTable { font-size: 12px !important; }
